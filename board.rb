@@ -35,6 +35,17 @@ class Board
       puts row_colors.join(' ')
     end
   end
-  
+
+  # Moves a piece to a new square if square is empty
+  def move_piece(from_square, to_square)
+    if to_square.empty? && to_square.color == from_square.color
+      to_square.checker_piece = from_square.checker_piece
+      from_square.checker_piece = nil
+      return true
+    else
+      return false
+    end
+  end
+      
 end
 
