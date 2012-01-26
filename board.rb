@@ -1,8 +1,7 @@
 class Board
   require 'Square'
   require 'Piece'
-  attr_reader :board
-
+  
   # Creates a basic game board, starting pieces on black spaces
   def initialize()
     @board = {}
@@ -44,9 +43,18 @@ class Board
     puts col_numbers.join(' ')
   end
 
+  
   # Moves piece from [x1,y1] to [x2,y2]
   def move_piece(from, to)
     return move_piece_in_square(@board[from], @board[to])
+  end
+
+  def fetch_piece(location)
+    @board[location].checker_piece
+  end
+
+  def fetch_square(location)
+    @board[location]
   end
   
   private
@@ -54,13 +62,8 @@ class Board
   # Moves a piece to a new square if square is empty and the square
   # color matches
   def move_piece_in_square(from_square, to_square)
-    if to_square.empty? && to_square.color == from_square.color
-      to_square.checker_piece = from_square.checker_piece
-      from_square.checker_piece = nil
-      return true
-    else
-      return false
-    end
+    to_square.checker_piece = from_square.checker_piece
+    from_square.checker_piece = nil
   end
       
 end
