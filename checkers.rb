@@ -60,8 +60,6 @@ class Checkers
     # Can they move go there?
     return false unless valid_move?(from,to)
 
-    # TODO Is it a location the piece can move to?
-    
     return true
   end
 
@@ -69,12 +67,27 @@ class Checkers
   def valid_move?(from,to)
     from_square = @board.fetch_square(from)
     to_square   = @board.fetch_square(to)
+
+    # Square is empty and of same color
+    return false unless to_square.empty? && to_square.color == from_square.color
+
+    # Square is inside leagal move area
+    return false unless moveable_area(from).include? to
+
+    true
+  end
+
+  # Pieces can only move diagonally
+  # Kings can move everywhere, though not sure how to test for king.
+  # Ffffuuuuuuu
+  def moveable_area(location)
+    moveable_area = []
+    moveable_area << location.map { |x| x - 1 }
+    moveable_area << [location[0] - 1, location[1] + 1]
+    moveable_area << [location[0] + 1, location[1] - 1]
+    moveable_area << location.map { |x| x + 1 }
     
-    if to_square.empty? && to_square.color == from_square.color
-      true
-    else
-      false
-    end
+    return moveable_area
   end
   
   def get_move
