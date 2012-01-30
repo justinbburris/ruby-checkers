@@ -1,0 +1,2 @@
+class SquareOutOfBoundsError < StandardError
+end

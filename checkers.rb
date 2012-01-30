@@ -1,6 +1,9 @@
 class Checkers
-  require 'Board'
-  require 'Piece'
+  require 'board'
+  require 'piece'
+
+  REGULAR_MOVE = 'regular_move'
+  JUMP_MOVE    = 'jump_move'
   
   # Setup basic game and give control to black
   def initialize()
@@ -71,25 +74,50 @@ class Checkers
     # Square is empty and of same color
     return false unless to_square.empty? && to_square.color == from_square.color
 
-    # Square is inside leagal move area
-    return false unless moveable_area(from).include? to
+    # Square is inside regular legal move area
+    unless moveable_area(REGULAR_MOVE, from).include? to
+      # If it's not a regular move, is it a jump?
+      puts 'jump?'
+      return false unless moveable_area(JUMP_MOVE, from).include? to
+    end
 
     true
   end
 
-  # Pieces can only move diagonally
+  # Pieces can only move diagonally one square
+  # Or they can jump diagonally two squares
   # Kings can move everywhere, though not sure how to test for king.
-  # Ffffuuuuuuu
-  def moveable_area(location)
-    moveable_area = []
-    moveable_area << location.map { |x| x - 1 }
-    moveable_area << [location[0] - 1, location[1] + 1]
-    moveable_area << [location[0] + 1, location[1] - 1]
-    moveable_area << location.map { |x| x + 1 }
-    
-    return moveable_area
+  def moveable_area(move_type, location)
+    Board::JUMP_DIRECTIONS.inject([]) do |area, direction|
+      area << self.send(move_type, direction, location)
+    end.compact
+  end
+
+  def regular_move(direction, location)
+    move = @board.send(direction, location)
+    begin
+      return @board.empty_square?(move) ? move : nil
+    rescue SquareOutOfBoundsError
+      return nil
+    end
   end
   
+  # Returns the coordinates the piece can jump to in a specific direction
+  # Elsewise returns nil
+  def jump_move (direction, location)
+    move = regular_move(direction, location)
+    unless move.nil?
+      piece = @board.fetch_piece(move)
+      if piece && (piece.color != @board.fetch_piece(location).color)
+        move = regular_move(direction, move)
+        unless move.nil?
+          return @board.empty_square?(move) ? move : nil
+        end
+      end
+    end
+    return nil
+  end
+      
   def get_move
     input = gets.chomp
     return nil if quit?(input)

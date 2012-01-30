@@ -1,6 +1,14 @@
 class Board
-  require 'Square'
-  require 'Piece'
+  require 'square'
+  require 'piece'
+  require 'square_out_of_bounds_error'
+
+  # Jump directions
+  JUMP_DIRECTIONS =
+    ['upper_left',
+     'upper_right',
+     'lower_left',
+     'lower_right']
   
   # Creates a basic game board, starting pieces on black spaces
   def initialize()
@@ -42,19 +50,40 @@ class Board
     end
     puts col_numbers.join(' ')
   end
-
   
   # Moves piece from [x1,y1] to [x2,y2]
   def move_piece(from, to)
     return move_piece_in_square(@board[from], @board[to])
   end
 
-  def fetch_piece(location)
-    @board[location].checker_piece
+  def fetch_square(location)
+    square = @board[location]
+    raise SquareOutOfBoundsError, 'Your square is not in the board bounds' if square.nil?
+    return square
   end
 
-  def fetch_square(location)
-    @board[location]
+  def fetch_piece(location)
+    fetch_square(location).checker_piece
+  end
+
+  def empty_square?(location)
+    fetch_square(location).checker_piece.nil?
+  end
+
+  def upper_left(location)
+    location.map { |x| x - 1 }
+  end
+
+  def upper_right(location)
+    [location[0] - 1, location[1] + 1]
+  end
+
+  def lower_left(location)
+    [location[0] + 1, location[1] - 1]
+  end
+
+  def lower_right(location)
+    location.map { |x| x + 1 }
   end
   
   private
@@ -65,5 +94,4 @@ class Board
     to_square.checker_piece = from_square.checker_piece
     from_square.checker_piece = nil
   end
-      
 end
